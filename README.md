@@ -108,7 +108,7 @@ When you encounter a bug, or see something missing, just report it using the "Is
 - [x] Images on the beatmap selection
 - [ ] Redo fancy textbox
 - [x] Add ranking to the resultsmenu
-- [ ] Stacked objects should be offset from another
+- [x] Stacked objects should be offset from another
 - [ ] Add animated combo counter
 - [ ] Add the flakes~
 - [ ] Add volume control

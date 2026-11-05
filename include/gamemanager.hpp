@@ -113,6 +113,12 @@ class GameManager{
 		double TimerLast = 0;
 		double TimeLast = 0;
 		double lastHitTime = 0;
+		float stackOffset = 0;
+		float stackTime = 0;
+		int stackNumber = 0;
+		short lastX = 0;
+		short lastY = 0;
+		float lastSpawnTime = 0;
 
 		long long int score = 0;
 		long long int animatedScore = 0;

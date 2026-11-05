@@ -16,7 +16,6 @@
 #include <sys/time.h>
 #include <vector>
 
-
 #include "linkedListImpl.hpp"
 
 // For some reason the clamp function didnt work so here is a manual one
@@ -1386,7 +1385,7 @@ void GameManager::loadGame(std::string filename) {
 
   //---------------------------------------------------------------------------------------------------------------------------------------------------------
   //------------------------------------------------------------------|LOADING
-  //BACKGROUNDS|------------------------------------------------------------------
+  // BACKGROUNDS|------------------------------------------------------------------
   //---------------------------------------------------------------------------------------------------------------------------------------------------------
 
   // clear all the backgrounds we have
@@ -1806,6 +1805,55 @@ void GameManager::loadGame(std::string filename) {
   float followPointFadeTime = gameFile.preempt - gameFile.fade_in;
   followLines.clear();
 
+  stackOffset =
+      -6.4 *
+      ((1.0 -
+        (0.7 * (std::stof(gameFile.configDifficulty["CircleSize"]) - 0.0))) /
+       1.0);
+  std::cout << "\e[1;38;5;236m[INFO] \e[38;5;32m"
+            << "StackOffset: " << stackOffset << std::endl;
+  stackTime = 0.7;
+  if (gameFile.configGeneral.find("StackLeniency") !=
+      gameFile.configGeneral.end()) {
+    stackTime = std::stof(gameFile.configGeneral["StackLeniency"]);
+  }
+  std::cout << "\e[1;38;5;236m[INFO] \e[38;5;32m"
+            << "StackLeniency: " << stackTime << std::endl;
+  stackNumber = 0;
+  lastSpawnTime = -10000000;
+
+  for (int i = 0; i < gameFile.hitObjects.size(); i++) {
+    if (gameFile.hitObjects[i].time - lastSpawnTime <
+            stackTime * gameFile.preempt &&
+        lastX == gameFile.hitObjects[i].x &&
+        lastY == gameFile.hitObjects[i].y) {
+      stackNumber++;
+      std::cout << "\e[1;38;5;236m[INFO] \e[38;5;32m" << "stacked "
+                << (int)stackOffset * stackNumber << "  "
+                << gameFile.preempt * stackTime << " "
+                << gameFile.hitObjects[i].time << "  " << lastSpawnTime
+                << std::endl;
+      gameFile.hitObjects[i].x += (int)stackOffset * stackNumber;
+      gameFile.hitObjects[i].y += (int)stackOffset * stackNumber;
+      gameFile.hitObjects[i].ex += (int)stackOffset * stackNumber;
+      gameFile.hitObjects[i].ey += (int)stackOffset * stackNumber;
+      gameFile.hitObjects[i].extraPos.x += (int)stackOffset * stackNumber;
+      gameFile.hitObjects[i].extraPos.y += (int)stackOffset * stackNumber;
+      for (int index = 0; index < gameFile.hitObjects[i].curvePoints.size();
+           index++) {
+        gameFile.hitObjects[i].curvePoints[index].first +=
+            (int)stackOffset * stackNumber;
+        gameFile.hitObjects[i].curvePoints[index].second +=
+            (int)stackOffset * stackNumber;
+      }
+    } else {
+      stackNumber = 0;
+    }
+    lastSpawnTime = gameFile.hitObjects[i].time;
+    lastX = gameFile.hitObjects[i].x;
+    lastY = gameFile.hitObjects[i].y;
+  }
+
   for (int i = 1; i < gameFile.hitObjects.size(); i++) {
     // float templength = (data.length/100) * (data.timing.beatLength) /
     // (gm->sliderSpeed * data.timing.sliderSpeedOverride) * data.slides;
@@ -1853,7 +1901,7 @@ void GameManager::loadGame(std::string filename) {
         }
 
         //--------------------------------------------- STANDART SLIDER
-        //PROCEDURE ---------------------------------------------
+        // PROCEDURE ---------------------------------------------
 
         tempData.timing.beatLength = times[index].beatLength;
         tempData.timing.sliderSpeedOverride = times[index].sliderSpeedOverride;
@@ -1870,7 +1918,7 @@ void GameManager::loadGame(std::string filename) {
         // std::cout << "done calculation of follow line starting from slider at
         // time: " << tempData.time << "\n";
         //--------------------------------------------- STANDART SLIDER
-        //PROCEDURE ---------------------------------------------
+        // PROCEDURE ---------------------------------------------
 
       } else {
         tempPoint.startTime =
@@ -2666,8 +2714,9 @@ int *GameManager::sliderPreInit(HitObjectData data) {
         if (i == edgePoints.size() - 1 ||
             (edgePoints[i].x == edgePoints[i + 1].x &&
              edgePoints[i].y == edgePoints[i + 1].y)) {
-          tempResolution = data.lengths[curveIndex]; // clip(data.lengths[curveIndex],
-                                                     // 0, 20000);
+          tempResolution =
+              data.lengths[curveIndex]; // clip(data.lengths[curveIndex],
+                                        // 0, 20000);
           // std::cout << "tempResolution: " << tempResolution << std::endl;
           tempResolution = std::min(data.lengths[curveIndex], 400.0f);
           // tempResolution = std::max(tempResolution, 1);
