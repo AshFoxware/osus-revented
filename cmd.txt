@@ -1,0 +1,1 @@
+-f cia -o /src/src.cia -target t -exefslogo -elf /src/src.elf -rsf meta/app.rsf -banner build/banner.bnr -icon build/icon.icn -major 2 -minor 6 -micro 7
